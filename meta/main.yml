@@ -1,0 +1,24 @@
+galaxy_info:
+  role_name: win_controlm_agent_facts
+  author: Stéphane Bilqué
+  description: Create a facts collection for Control-M Agent on a Windows host
+  company: Informatique CDC
+  license: Apache
+
+  min_ansible_version: 2.6
+
+  github_branch: https://github.com/informatique-cdc/ansible-role-win_controlm_agent_facts
+
+  platforms:
+   - name: Windows
+     versions:
+      - 2016
+
+  galaxy_tags:
+    - windows
+    - control m
+    - controlm
+    - agent
+    - configuration
+
+dependencies: []

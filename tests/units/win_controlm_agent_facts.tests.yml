@@ -1,0 +1,19 @@
+---
+- name: test the win_controlm_agent_facts module
+  hosts: all
+  gather_facts: false
+
+  roles:
+    - win_controlm_agent_facts
+
+  tasks:
+    - name: Gather facts from Control-M Agent
+      win_controlm_agent_facts:
+
+    - name: Displays the Configuration
+      debug:
+        var: ansible_controlm_agent.config
+
+    - name: Displays the Configuration
+      debug:
+        var: ansible_controlm_agent.communication_diagnostic_report
