@@ -35,31 +35,38 @@ Function Invoke-AnsibleModule {
     }
 }
 
+$RegistryPath = 'HKLM:\SOFTWARE\BMC Software\Control-M/Agent'
+
 try {
     Describe 'win_controlm_agent_facts' -Tag 'Get' {
 
         Context 'Control/M Agent is installed' {
 
-            Mock -CommandName Get-Service -MockWith {
-                return @{
-                    Status    = 'Running'
-                    StartType = 'Automatic'
-                } }
+            BeforeAll {
 
-            Mock -CommandName Test-NetConnection -MockWith {
-                return @{
-                    TcpTestSucceeded = $true
-                    PingSucceeded = $true
-                } }
-            Mock -CommandName Get-WmiObject -MockWith {
-                return @{
-                    startname = 'LocalSystem'
-                    Status    = 'OK'
-                } }
+                Mock -CommandName Get-Service -ParameterFilter { $Name -eq 'ctmag' } -MockWith {
+                    return @{
+                        Name   = 'ctmag'
+                        Status = 'Running'
+                        StartType = 'Automatic'
+                    }
+                }
 
-            It 'Should return the configuration only' {
+                Mock -CommandName Test-NetConnection -MockWith {
+                    return @{
+                        TcpTestSucceeded = $true
+                        PingSucceeded    = $true
+                    }
+                }
 
-                Mock -CommandName Get-ItemProperty -MockWith {
+                Mock -CommandName Get-WmiObject -MockWith {
+                    return @{
+                        startname = 'LocalSystem'
+                        status    = 'OK'
+                    }
+                }
+
+                Mock -CommandName Get-ItemProperty -ParameterFilter { $Path.StartsWith($RegistryPath) } -MockWith {
                     return @{
                         ATCMNDATA          = '9000'
                         AGCMNDATA          = '9001'
@@ -70,28 +77,35 @@ try {
                         COMM_TRACE         = '1'
                         JOB_WAIT           = 'Y'
                         COMMOPT            = 'SSL=N;DUMMY=N'
+                        JOB_STATISTIC = 'Y'
+                        PERSISTENT_CONNECTION = 'N'
+                        DEFAULT_AGENT = 'Default'
                     }
                 }
                 Mock -CommandName Get-HostAddresses -MockWith { return @( @{ IPAddressToString = '192.168.1.1' }) }
+            }
+
+            It 'Should return the configuration only' {
 
                 $params = @{ }
 
                 $result = Invoke-AnsibleModule -params $params
                 $result.changed | Should -Be $false
-                $result.ansible_facts.ansible_controlm_agent.Config.job_output_name | Should -Be 'MEMNAME'
-                $result.ansible_facts.ansible_controlm_agent.Config.Config.agent_to_server_port| Should -Be 9000
-                $result.ansible_facts.ansible_controlm_agent.Config.Config.server_to_agent_port| Should -Be 9001
-                $result.ansible_facts.ansible_controlm_agent.Config.Config.tracker_event_port | Should -Be 9002
-                $result.ansible_facts.ansible_controlm_agent.Config.Config.primary_controlm_server_host | Should -Be 'server1'
-                $result.ansible_facts.ansible_controlm_agent.Config.authorized_controlm_server_hosts| Should -Be 'server1|server2|server3.cloud'
-                $result.ansible_facts.ansible_controlm_agent.Config.Config.job_children_inside_job_object | Should -Be $true
+                $result.ansible_facts.ansible_controlm_agent.config.job_output_name | Should -Be 'MEMNAME'
+                $result.ansible_facts.ansible_controlm_agent.config.agent_to_server_port | Should -Be 9000
+                $result.ansible_facts.ansible_controlm_agent.config.server_to_agent_port | Should -Be 9001
+                $result.ansible_facts.ansible_controlm_agent.config.tracker_event_port | Should -Be 9002
+                $result.ansible_facts.ansible_controlm_agent.config.primary_controlm_server_host | Should -Be 'server1'
+                $result.ansible_facts.ansible_controlm_agent.config.authorized_controlm_server_hosts | Should -Be 'server1|server2|server3.cloud'
+                $result.ansible_facts.ansible_controlm_agent.config.job_children_inside_job_object | Should -Be $true
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_ping_to_controlm_server | Should -Be $true
-                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.system_ping_to_server_platform| Should -Be $true
+                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.system_ping_to_server_platform | Should -Be $true
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.dns_translation_of_server | Should -Be '192.168.1.1'
-                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.user_name| Should -Be 'LocalSystem'
-                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_status| Should -Be 'OK'
+                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.user_name | Should -Be 'LocalSystem'
+                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_status | Should -Be 'OK'
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_state | Should -Be 'Running'
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_start_mode | Should -Be 'Automatic'
+                $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.server_agent_connection_mode | Should -Be 'transient'
             }
         }
     }
