@@ -183,7 +183,7 @@ Function Get-DiagnosticReport {
     if ($module.CheckMode) {
         $report.system_ping_to_server_platform = $true
         $report.agent_ping_to_controlm_server = $true
-        $report.dns_translation_of_server = ''
+        $report.dns_translation_of_server = '1.1.1.1'
     }
     elseif ($config['primary_controlm_server_host']) {
 
