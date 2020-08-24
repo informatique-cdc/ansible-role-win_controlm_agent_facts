@@ -82,7 +82,7 @@ ansible_facts:
                             type: str
                             sample: as C(Running) or C(Stopped) or C(Paused)
                         agent_start_mode:
-                            description: Startup type of whe Windows agent service.
+                            description: Startup type of the Windows agent service.
                             returned: success
                             type: str
                             sample: as C(Automatic) or C(Manual)
@@ -102,7 +102,7 @@ ansible_facts:
                             type: str
                             sample: as C(persistent) or C(transient)
                         server_agent_communication_protocol:
-                            description: Protocol type of tyhe Server-Agent communication.
+                            description: Protocol type of the Server-Agent communication.
                             returned: success
                             type: str
                             sample: as C(TCP) or C(SSL)
@@ -115,7 +115,7 @@ ansible_facts:
                             returned: success
                             type: bool
                         dns_translation_of_server:
-                            description: IP addresse of the primary server host.
+                            description: IP address of the primary server host.
                             returned: success
                             type: bool
                             sample: '192.168.1.1'
@@ -186,7 +186,7 @@ ansible_facts:
                             returned: success
                             type: bool
                         limit_log_file_size:
-                            description: maximum size (MB) of diagnostic log files for a process or a thread.
+                            description: Maximum size (MB) of diagnostic log files for a process or a thread.
                             returned: success
                             type: int
                             sample: 10
@@ -196,7 +196,7 @@ ansible_facts:
                             type: int
                             sample: 10
                         listen_to_network_interface:
-                            description: TNetwork interface the agent is listening on.
+                            description: Network interface the agent is listening on.
                             returned: success
                             type: str
                             sample: \*ANY
