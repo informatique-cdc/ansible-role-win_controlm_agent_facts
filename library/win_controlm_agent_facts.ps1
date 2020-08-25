@@ -250,7 +250,7 @@ $module.Result.ansible_facts = @{
     }
 }
 
-Get-Service -Name ctmag -ErrorAction SilentlyContinue -ErrorVariable ProcessError -OutVariable Service
+$service = Get-Service -Name ctmag -ErrorAction SilentlyContinue -ErrorVariable ProcessError
 If ($ProcessError) {
     $module.ExitJson()
 }
