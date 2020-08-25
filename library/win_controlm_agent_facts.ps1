@@ -178,8 +178,8 @@ Function Get-DiagnosticReport {
     $config = $module.result.ansible_facts.ansible_controlm_agent.config
 
     $service = Get-Service -Name ctmag
-    $report.agent_state = $service.Status
-    $report.agent_start_mode = $service.StartType
+    $report.agent_state = $service.Status.ToString()
+    $report.agent_start_mode = $service.StartType.ToString()
 
     $service = Get-WmiObject -Class Win32_Service -Filter "Name='ctmag'"
     $report.user_name = $service.StartName
