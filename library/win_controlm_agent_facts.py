@@ -311,10 +311,30 @@ ansible_facts:
                             type: str
                             sample: WIN2K
                         agent_version:
-                            description: Version of the agent.
+                            description: Dictionary/map that contains information about the current running version of the agent.
                             returned: success
-                            type: str
-                            sample: 9.0.19.200
+                            type: dict
+                            contains:
+                                full:
+                                    description: The full string of the version.
+                                    type: str
+                                    sample: 9.0.20.100
+                                major:
+                                    description: The major component of the version number.
+                                    type: int
+                                    sample: 9
+                                minor:
+                                    description: The minor component of the version number.
+                                    type: int
+                                    sample: 0
+                                build:
+                                    description: The build component of the version number.
+                                    type: int
+                                    sample: 20
+                                revision:
+                                    description: The revision component of the version number. A higher revision number might be used in a build that fixes a security hole in a previously released agent.
+                                    type: int
+                                    sample: 100
                         fd_number:
                             description: Unique identifier of the agent.
                             returned: success

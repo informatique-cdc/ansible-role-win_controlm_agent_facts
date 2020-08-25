@@ -46,8 +46,8 @@ try {
 
                 Mock -CommandName Get-Service -ParameterFilter { $Name -eq 'ctmag' } -MockWith {
                     return @{
-                        Name   = 'ctmag'
-                        Status = 'Running'
+                        Name      = 'ctmag'
+                        Status    = 'Running'
                         StartType = 'Automatic'
                     }
                 }
@@ -68,18 +68,21 @@ try {
 
                 Mock -CommandName Get-ItemProperty -ParameterFilter { $Path.StartsWith($RegistryPath) } -MockWith {
                     return @{
-                        ATCMNDATA          = '9000'
-                        AGCMNDATA          = '9001'
-                        TRACKER_EVENT_PORT = '9002'
-                        CTMSHOST           = 'server1'
-                        CTMPERMHOSTS       = 'server1|server2|server3.cloud'
-                        OUTPUT_NAME        = 'MEMNAME'
-                        COMM_TRACE         = '1'
-                        JOB_WAIT           = 'Y'
-                        COMMOPT            = 'SSL=N;DUMMY=N'
-                        JOB_STATISTIC = 'Y'
+                        ATCMNDATA             = '9000'
+                        AGCMNDATA             = '9001'
+                        TRACKER_EVENT_PORT    = '9002'
+                        CTMSHOST              = 'server1'
+                        CTMPERMHOSTS          = 'server1|server2|server3.cloud'
+                        OUTPUT_NAME           = 'MEMNAME'
+                        COMM_TRACE            = '1'
+                        JOB_WAIT              = 'Y'
+                        COMMOPT               = 'SSL=N;DUMMY=N'
+                        JOB_STATISTIC         = 'Y'
                         PERSISTENT_CONNECTION = 'N'
-                        DEFAULT_AGENT = 'Default'
+                        DEFAULT_AGENT         = 'Default'
+                        CODE_VERSION          = '9.0.19.100'
+                        FD_NUMBER             = 'DRKAI.9.0.19.100'
+                        FIX_NUMBER            = 'DRKAI.9.0.19.200'
                     }
                 }
                 Mock -CommandName Get-HostAddresses -MockWith { return @( @{ IPAddressToString = '192.168.1.1' }) }
@@ -98,6 +101,11 @@ try {
                 $result.ansible_facts.ansible_controlm_agent.config.primary_controlm_server_host | Should -Be 'server1'
                 $result.ansible_facts.ansible_controlm_agent.config.authorized_controlm_server_hosts | Should -Be 'server1|server2|server3.cloud'
                 $result.ansible_facts.ansible_controlm_agent.config.job_children_inside_job_object | Should -Be $true
+                $result.ansible_facts.ansible_controlm_agent.config.agent_version.full | Should -Be '9.0.19.200'
+                $result.ansible_facts.ansible_controlm_agent.config.agent_version.major | Should -Be 9
+                $result.ansible_facts.ansible_controlm_agent.config.agent_version.minor | Should -Be 0
+                $result.ansible_facts.ansible_controlm_agent.config.agent_version.build | Should -Be 19
+                $result.ansible_facts.ansible_controlm_agent.config.agent_version.revision | Should -Be 200
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.agent_ping_to_controlm_server | Should -Be $true
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.system_ping_to_server_platform | Should -Be $true
                 $result.ansible_facts.ansible_controlm_agent.communication_diagnostic_report.dns_translation_of_server | Should -Be '192.168.1.1'

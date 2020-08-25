@@ -169,6 +169,42 @@ function Get-HostAddresses {
     $IPAddresses = [System.Net.Dns]::GetHostAddresses($HostNameOrAddress)
     return $IPAddresses
 }
+
+Function Get-VersionPart {
+    <#
+    .SYNOPSIS
+    Retrieves the sermver part in a string
+    #>
+    [OutputType([hashtable])]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]
+        $string
+    )
+
+    $semver = [regex]@'
+(?inx)
+(?<Major>0|\d+)\.
+(?<Minor>[0-9]\d*)
+(?<PatchWithSeparator>\.(?<Patch>[0-9]\d*))?
+(?<PreReleaseTagWithSeparator>-(?<PreReleaseTag>([a-z-][\da-z-]+|[\da-z-]+[a-z-][\da-z-]*|0|[1-9]\d*)(\.([a-z-][\da-z-]+|[\da-z-]+[a-z-][\da-z-]*|0|[1-9]\d*))*))?
+(?<BuildMetadataWithSeparator>\+(?<BuildMetadata>[\da-z-]+(\.[\da-z-]+)*))?
+(?<BuildWithSeparator>\.(?<Build>\d+))?
+'@
+    if ($string -match $semver) {
+        return @{
+            full     = $matches[0]
+            major    = [int]$matches['Major']
+            minor    = [int]$matches['Minor']
+            build    = [int]$matches['Patch']
+            revision = [int]$matches['Build']
+        }
+    }
+    else {
+        return $null
+    }
+}
+
 Function Get-DiagnosticReport {
     <#
     .SYNOPSIS
@@ -236,6 +272,15 @@ Function Get-Configuration {
         $config[$_] = $Value
     }
 
+    if ($config.ContainsKey('fix_number')) {
+        $version = Get-VersionPart -String $config.fix_number
+        $config.agent_version = $version
+    }
+    else {
+        $version = Get-VersionPart -String $config.agent_version
+        $config.agent_version = $version
+    }
+
     $module.result.ansible_facts.ansible_controlm_agent.config = $config
 }
 
@@ -243,16 +288,17 @@ $module = [Ansible.Basic.AnsibleModule]::Create($args, $spec)
 
 # Create a new result object
 $module.Result.changed = $false
+
+$service = Get-Service -Name ctmag -ErrorAction SilentlyContinue -ErrorVariable ProcessError
+If ($ProcessError) {
+    $module.ExitJson()
+}
+
 $module.Result.ansible_facts = @{
     ansible_controlm_agent = @{
         config                          = @{ }
         communication_diagnostic_report = @{ }
     }
-}
-
-$service = Get-Service -Name ctmag -ErrorAction SilentlyContinue -ErrorVariable ProcessError
-If ($ProcessError) {
-    $module.ExitJson()
 }
 
 Get-Configuration
