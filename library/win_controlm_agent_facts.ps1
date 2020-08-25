@@ -272,7 +272,7 @@ Function Get-Configuration {
         $config[$_] = $Value
     }
 
-    if ($config.ContainsKey('fix_number')) {
+    if ($config.ContainsKey('fix_number') -and $config.ContainsKey('fix_number') -ne "0") {
         $version = Get-VersionPart -String $config.fix_number
         $config.agent_version = $version
     }
