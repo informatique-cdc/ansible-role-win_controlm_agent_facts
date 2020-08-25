@@ -151,6 +151,24 @@ Function Get-ControlMParameter {
     return $Value
 }
 
+function Get-HostAddresses {
+    <#
+    .SYNOPSIS
+    Returns the Internet Protocol (IP) addresses for the specified host.
+    .PARAMETER HostNameOrAddress
+    The host name or IP address to resolve.
+    .OUTPUTS
+    An array of type IPAddress that holds the IP addresses for the host that is specified by the hostNameOrAddress parameter.
+    #>
+    [OutputType([System.Net.IPAddress[]])]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]
+        $HostNameOrAddress
+    )
+    $IPAddresses = [System.Net.Dns]::GetHostAddresses($HostNameOrAddress)
+    return $IPAddresses
+}
 Function Get-DiagnosticReport {
     <#
     .SYNOPSIS
