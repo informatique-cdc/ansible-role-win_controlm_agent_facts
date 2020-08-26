@@ -13,7 +13,12 @@ function Get-HostAddresses {
         [string]
         $HostNameOrAddress
     )
-    $IPAddresses = [System.Net.Dns]::GetHostAddresses($HostNameOrAddress)
+    try {
+        $IPAddresses = [System.Net.Dns]::GetHostAddresses($HostNameOrAddress)
+    }
+    catch {
+        $IPAddresses = @()
+    }
     return $IPAddresses
 }
 
